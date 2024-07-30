@@ -6,10 +6,14 @@ const fs = require('fs');
 const { exec } = require('child_process');
 
 const app = express();
-const port = 3000;
+const port = process.env.PORT || 3000;
 
-// Configure CORS
-app.use(cors());
+// Configure CORS to allow requests from your domain
+const corsOptions = {
+    origin: 'https://jorkthepork.com',
+    optionsSuccessStatus: 200
+};
+app.use(cors(corsOptions));
 
 // Set up file upload handling
 const storage = multer.diskStorage({
