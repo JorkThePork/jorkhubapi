@@ -6,7 +6,7 @@ const fs = require('fs');
 const { exec } = require('child_process');
 
 const app = express();
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 3000; // Use the PORT environment variable provided by Heroku
 
 // Configure CORS to allow requests from your domain
 const corsOptions = {
@@ -30,6 +30,7 @@ const upload = multer({ storage: storage });
 if (!fs.existsSync('uploads')) {
     fs.mkdirSync('uploads');
 }
+
 function generateRandomString(length) {
     const charset = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
     let randomString = '';
@@ -39,6 +40,7 @@ function generateRandomString(length) {
     }
     return randomString;
 }
+
 app.post('/sign', upload.fields([
     { name: 'p12', maxCount: 1 },
     { name: 'mobileProvision', maxCount: 1 },
@@ -49,6 +51,7 @@ app.post('/sign', upload.fields([
     const mobileProvisionPath = req.files['mobileProvision'][0].path;
     const ipaPath = req.files['ipa'][0].path;
     const password = req.body.password;
+    const randomSuffix = generateRandomString(7);
 
     // Define the path for the signed IPA file
     const signedIpaName = `${originalIpaName}.ipa`;
@@ -56,7 +59,6 @@ app.post('/sign', upload.fields([
 
     // Construct the command to sign the IPA file
     const codesignCommand = `~/Desktop/ipa/zsign -k "${p12Path}" -p "${password}" -m "${mobileProvisionPath}" -o "${signedIpaPath}" -b 'com.jorkhub.${randomSuffix}' -n 'Esign' "${ipaPath}"`;
-    const randomSuffix = generateRandomString(7);
 
     exec(codesignCommand, (error, stdout, stderr) => {
         if (error) {
